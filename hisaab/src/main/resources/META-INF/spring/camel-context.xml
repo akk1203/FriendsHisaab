@@ -13,17 +13,17 @@
          then performs content based routing on the message using XPath -->
 			
       <route>
-         <from uri = "file:///e:/src/data?noop=false"/>
+         <from uri = "file:///d:/src/data?noop=false"/>
          <choice>
             <when>
                <xpath>/person/city = 'London'</xpath>
                <log message = "UK message"/>
-               <to uri = "file:///e:/target/messages/uk"/>
+               <to uri = "file:///d:/target/messages/uk"/>
             </when>
 				
             <otherwise>
                <log message = "Other message"/>
-               <to uri = "file:///e:/target/messages/others"/>
+               <to uri = "file:///d:/target/messages/others"/>
             </otherwise>
 				
          </choice>
