@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://karaf.apache.org/xmlns/features/v1.0.0 http://karaf.apache.org/xmlns/features/v1.0.0"
+          name="com.fusesource.example.camel">
+
+    <feature name="hisaab">
+      <feature>camel-jackson</feature>
+      <feature>camel-cxf</feature>
+            <feature>camel-core</feature>
+            <feature>camel-groovy</feature>
+            <feature>camel-mongodb</feature>
+<!--       <feature>camel-jaxb</feature> -->
+<!--       <feature>camel-spring</feature> -->
+<!--       <bundle>wrap:mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-xml-provider/2.4.3</bundle> -->
+<!--       <bundle>wrap:mvn:com.fasterxml.jackson.core/jackson-annotations/2.4.3</bundle> -->
+<!--       <bundle>wrap:mvn:com.fasterxml.jackson.core/jackson-databind/2.4.3</bundle> -->
+<!--       <bundle>wrap:mvn:com.fasterxml.jackson.core/jackson-core/2.4.3</bundle> -->
+      <bundle>mvn:com.hritika/hisaab/1.0-SNAPSHOT</bundle>
+    </feature>
+</features>
