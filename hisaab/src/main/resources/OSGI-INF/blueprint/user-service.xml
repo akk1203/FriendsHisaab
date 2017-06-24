@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:camel-cxf="http://camel.apache.org/schema/blueprint/cxf"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+       http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+    
+    <bean id="serviceProcessor" class="com.hritika.rest.resource.ServiceProcessor" />
+    <bean id="mongodbHelper" class="com.hritika.rest.resource.MongoDBHelper" />
+    <bean id="mongoDBInstance" class="com.mongodb.MongoURI"> 
+    	<argument index="0" value="mongodb://akk_1203:Pratik_1402@ds123312.mlab.com:23312/hritika"/>
+    </bean>
+    <bean id="mongoDBBean" class="com.mongodb.Mongo">
+    	<argument index="0" ref="mongoDBInstance" />         
+    </bean>
+
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint">
+    
+    	<dataFormats>
+    		<json id="mapJSON" library="Jackson" unmarshalTypeName="com.hritika.model.Response" />
+    	</dataFormats>
+       <route>
+         <from uri="cxfrs:bean:userServiceEndpoint?bindingStyle=SimpleConsumer"/>
+         <recipientList>
+         	<simple>direct-vm:${headers.operationName}</simple>
+         </recipientList>			
+      </route>
+      
+      <route>
+         <from uri = "direct-vm:getPersist"/>
+         <log message = "Request Received...."/>
+         <bean ref="mongodbHelper" method="convertToDBObject" />
+         <bean ref="mongodbHelper" method="enrichIdValue('${body}')" />
+         <setProperty propertyName="dbObject">
+         		<simple>${body}</simple>
+         </setProperty>
+         <to uri="mongodb:mongoDBBean?database=hritika&amp;collection=users&amp;operation=save" />
+         <bean ref="mongodbHelper" method="prepareResponse('0', 'Successful', ${property.dbObject.get('_id')})" />
+         <marshal ref="mapJSON" />
+         <bean ref="serviceProcessor" method="construct200OkResponse" />			
+      </route>
+      
+<!--       <route> -->
+<!--          <from uri = "direct-vm:getID"/> -->
+<!--          <log message = "Messagae Received: ${body.get('userId')}" loggingLevel="INFO"/> -->
+<!--          <choice> -->
+<!--          		<when> -->
+<!--          			<simple>${body.get('_id')} != null</simple> -->
+<!--          			<log message = "Messagae Received:into not null" loggingLevel="INFO"/> -->
+<!--          			<setProperty propertyName="originalPayload"> -->
+<!--          				<simple>${body}</simple> -->
+<!--          			</setProperty> -->
+<!--          			<bean ref="mongodbHelper" method="getIdRequest" /> -->
+<!--          			<to uri="mongodb:mongoDBBean?database=hritika&amp;collection=users&amp;operation=findOneByQuery" /> -->
+<!--          			<setHeader headerName="id"> -->
+<!--          				<simple>${body.get('_id')}</simple> -->
+<!--          			</setHeader> -->
+<!--          			<setBody><simple>${property.originalPayload}</simple></setBody>			 -->
+<!--          		</when> -->
+<!--          </choice>		 -->
+<!--       </route> -->
+      
+      
+    </camelContext>
+
+    <!-- CXF servers -->
+    <camel-cxf:rsServer id="userServiceEndpoint" address="http://0.0.0.0:9004/user"
+                        loggingFeatureEnabled="false" serviceClass="com.hritika.rest.resource.UserService">
+    </camel-cxf:rsServer>
+
+</blueprint>
